@@ -3,6 +3,7 @@ import {
   ChevronDown, Trash2, Pencil, RefreshCw, Download, Upload,
   Plus, Bell, Database, Moon, Sun, BarChart2,
 } from 'lucide-vue-next'
+import { TEKSTEN } from '~/data/teksten'
 
 useSeoMeta({
   title: 'Gelukt — Profiel',
@@ -22,6 +23,21 @@ const {
   vraagToestemming: vraagMeldingToestemming, slaOp: slaaMeldingenOp,
 } = useMeldingen()
 const { donker, wissel: wisselThema } = useThema()
+const route = useRoute()
+const flashSectie = ref('')
+
+onMounted(() => {
+  if (route.query.sectie === 'sync') {
+    open.instellingen = true
+    nextTick(() => {
+      setTimeout(() => {
+        document.getElementById('data-sync')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        flashSectie.value = 'sync'
+        setTimeout(() => (flashSectie.value = ''), 2000)
+      }, 350) // wacht tot v-show de DOM heeft bijgewerkt
+    })
+  }
+})
 
 // Inklapbare secties
 const open = reactive({
@@ -117,6 +133,15 @@ async function bevestigEnVerwijder() {
 const meldingFormulier = ref({ ...instellingen.value })
 const meldingOpgeslagen = ref(false)
 
+function toonIntro() {
+  if (!process.client) return
+  localStorage.removeItem('gelukt-intro-gezien')
+  const introTonen = useState('introTonen')
+  const introStap = useState('introStap')
+  introStap.value = 1
+  introTonen.value = true
+}
+
 async function slaaMeldingenOpEnToets() {
   if (toestemming.value !== 'granted') {
     const ok = await vraagMeldingToestemming()
@@ -184,7 +209,6 @@ async function slaaMeldingenOpEnToets() {
       </button>
       <div v-show="open.redenen" class="mt-3">
         <p class="g-meta mb-3">Waarom wil je stoppen? Zichtbaar als je een drang noteert.</p>
-        <p v-if="plan.redenen.length === 0" class="g-meta mb-3">nog niets ingevuld</p>
         <div v-for="(reden, i) in plan.redenen" :key="i" class="mb-2">
           <template v-if="bewerkIndex === i">
             <input v-model="bewerkWaarde" type="text" class="g-input"
@@ -257,6 +281,14 @@ async function slaaMeldingenOpEnToets() {
 
       <div v-show="open.instellingen" class="mt-3">
 
+        <!-- Info -->
+        <div class="py-3 border-b border-stone-200 dark:border-stone-700">
+          <button class="flex items-center justify-between w-full" @click="toonIntro">
+            <span class="g-body">hoe werkt gelukt?</span>
+            <span class="g-meta">bekijk introductie</span>
+          </button>
+        </div>
+
         <!-- Thema -->
         <div class="py-3 border-b border-stone-200 dark:border-stone-700">
           <label class="flex items-center justify-between cursor-pointer" @click.prevent="wisselThema">
@@ -321,55 +353,66 @@ async function slaaMeldingenOpEnToets() {
           </template>
         </div>
 
-        <!-- Data & sync -->
-        <div class="py-3">
-          <p class="g-label mb-2">sync</p>
+        <!-- Data -->
+        <div id="data-sync" class="py-3" :class="{ 'g-flash': flashSectie === 'sync' }">
 
-          <template v-if="bestandGekoppeld">
+          <template v-if="!bestandGekoppeld">
+            <!-- Stap 1: nog geen bestand -->
+            <p class="g-meta mb-3">{{ TEKSTEN.syncUitleg }}</p>
+            <p class="g-meta mb-4">{{ TEKSTEN.cloudVoorbeelden }}</p>
+
+            <template v-if="ondersteund">
+              <div class="flex flex-col gap-2">
+                <button @click="nieuwBestand" :disabled="bestandBezig" class="g-btn flex items-center gap-2">
+                  <Plus :size="14" /> nieuw bestand aanmaken
+                </button>
+                <button @click="koppelBestand" :disabled="bestandBezig" class="g-btn flex items-center gap-2">
+                  <Database :size="14" /> bestaand bestand koppelen
+                </button>
+              </div>
+            </template>
+
+            <template v-else>
+              <p class="g-meta mb-3">{{ TEKSTEN.browserGeenSupport }}</p>
+              <div class="flex flex-col gap-2">
+                <button @click="exporteerData" class="g-btn flex items-center gap-2">
+                  <Download :size="14" /> download data
+                </button>
+                <label class="g-btn flex items-center gap-2">
+                  <input type="file" accept=".json" class="hidden" @change="handleImport" />
+                  <Upload :size="14" /> importeer data
+                </label>
+              </div>
+            </template>
+          </template>
+
+          <template v-else>
+            <!-- Stap 2: bestand gekoppeld -->
             <p class="g-body mb-1">{{ bestandNaam }}</p>
-            <p class="g-meta mb-3">De app schrijft automatisch naar dit bestand bij elke wijziging.</p>
+            <p class="g-meta mb-4">Wordt automatisch opgeslagen bij elke wijziging.</p>
+
             <div class="flex flex-col gap-2">
               <button @click="ververs" :disabled="verversBezig" class="g-btn flex items-center gap-2">
                 <RefreshCw :size="14" />
                 <span :class="verversSucces ? 'text-green-700 dark:text-green-500' : ''">
-                  {{ verversSucces ? 'bijgewerkt ✓' : 'herladen van schijf' }}
+                  {{ verversSucces ? 'gesynchroniseerd ✓' : 'synchroniseer' }}
                 </span>
               </button>
-              <button v-if="ondersteund" @click="koppelBestand" :disabled="bestandBezig" class="g-btn flex items-center gap-2">
-                <Database :size="14" /> ander bestand kiezen
-              </button>
-            </div>
-          </template>
-
-          <template v-else>
-            <p class="g-meta mb-3">Geen sync-bestand — kies een locatie in een cloudmap voor automatische sync.</p>
-            <div class="g-infobox mb-3">
-              <p>iCloud Drive, Google Drive, OneDrive of Dropbox — sla het bestand daarin op en het synchroniseert automatisch.</p>
-            </div>
-            <div class="flex flex-col gap-2" v-if="ondersteund">
-              <button @click="nieuwBestand" :disabled="bestandBezig" class="g-btn flex items-center gap-2">
-                <Plus :size="14" /> nieuw bestand aanmaken
-              </button>
-              <button @click="koppelBestand" :disabled="bestandBezig" class="g-btn flex items-center gap-2">
-                <Database :size="14" /> bestaand bestand koppelen
-              </button>
-            </div>
-          </template>
-
-          <div class="border-t border-stone-200 dark:border-stone-700 mt-4 pt-4">
-            <p class="g-label mb-2">backup</p>
-            <p class="g-meta mb-2">Eenmalige extra kopie — handig als veiligheidsnet naast de automatische sync.</p>
-            <div class="flex flex-col gap-2">
               <button @click="exporteerData" class="g-btn flex items-center gap-2">
-                <Download :size="14" /> maak backup
+                <Download :size="14" /> download kopie
               </button>
               <label class="g-btn flex items-center gap-2">
                 <input type="file" accept=".json" class="hidden" @change="handleImport" />
-                <Upload :size="14" /> herstel vanuit backup
+                <Upload :size="14" /> importeer data
               </label>
-              <p v-if="importFout" class="g-meta">fout: {{ importFout }}</p>
+              <button v-if="ondersteund" @click="koppelBestand" :disabled="bestandBezig"
+                class="g-link flex items-center gap-1 mt-1">
+                <Database :size="11" /> ander bestand kiezen
+              </button>
             </div>
-          </div>
+            <p v-if="importFout" class="g-meta mt-2">fout: {{ importFout }}</p>
+          </template>
+
         </div>
 
       </div>

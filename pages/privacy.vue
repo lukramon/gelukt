@@ -39,7 +39,7 @@ useSeoMeta({
           Verantwoordelijke voor de verwerking:<br />
           Luk Ramon<br />
           gelukt.be<br />
-          contact: [e-mailadres toe te voegen]
+          contact: contact@lukramon.com
         </p>
       </div>
     </div>

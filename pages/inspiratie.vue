@@ -8,12 +8,12 @@ useSeoMeta({
 })
 
 const LABELS: Record<BronType, string> = {
-  app:     'app',
-  website: 'website',
-  video:   'video',
-  artikel: 'artikel',
-  boek:    'boek',
-  podcast: 'podcast',
+  app:     'apps',
+  website: 'websites',
+  video:   "video's",
+  artikel: 'artikelen',
+  boek:    'boeken',
+  podcast: 'podcasts',
   muziek:  'muziek',
 }
 

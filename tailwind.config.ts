@@ -14,6 +14,10 @@ export default {
         sans:  ['Atkinson Hyperlegible', 'system-ui', 'sans-serif'],
         bijbel: ['Lusitana', 'Georgia', 'serif'],
       },
+      borderRadius: {
+        DEFAULT: '0.375rem', // pas dit aan om alle 'rounded' tegelijk te wijzigen
+        full: '9999px',
+      },
       colors: {
         black:   '#1A1714',   // warme near-black
         white:   '#FFFFFF',   // echt wit (inputs, vlakken)

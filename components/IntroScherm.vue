@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { TEKSTEN } from '~/data/teksten'
 const router = useRouter()
-const tonen = ref(false)
-const stap = ref(1)
+
+// useState zodat profiel.vue het ook kan aansturen zonder page reload
+const tonen = useState('introTonen', () => false)
+const stap = useState('introStap', () => 1)
 
 onMounted(() => {
   if (!localStorage.getItem('gelukt-intro-gezien')) {
+    stap.value = 1
     tonen.value = true
   }
 })
@@ -16,65 +20,64 @@ function sluit() {
 
 function stelIn() {
   sluit()
-  router.push('/profiel#data-sync')
+  router.push('/profiel?sectie=sync')
 }
 </script>
 
 <template>
   <Teleport to="body">
-    <div v-if="tonen" class="fixed inset-0 bg-paper z-50 flex items-center justify-center p-6">
-      <div class="max-w-sm w-full">
+    <div
+      v-if="tonen"
+      class="fixed inset-0 bg-paper dark:bg-black z-50 overflow-auto flex flex-col"
+    >
+      <div class="flex-1 flex items-center justify-center p-6">
+        <div class="max-w-sm w-full">
 
-        <!-- Stap 1: wat is gelukt -->
-        <template v-if="stap === 1">
-          <h1 class="g-title">gelukt</h1>
+          <!-- Stap 1 -->
+          <template v-if="stap === 1">
+            <h1 class="g-title">gelukt</h1>
 
-          <p class="g-body mb-4">Dit is een hulpmiddel — niet de oplossing.</p>
+            <p class="g-body mb-4">Dit is een hulpmiddel — niet de oplossing.</p>
 
-          <p class="g-body mb-4">
-            Gelukt helpt je bijhouden hoe het gaat: je streak, triggers en
-            drangmomenten. Eerlijk zijn met jezelf is een eerste stap.
-          </p>
+            <p class="g-body mb-4">
+              Gelukt helpt je bijhouden hoe het gaat: je streak, triggers en
+              drangmomenten. Eerlijk zijn met jezelf is een eerste stap.
+            </p>
 
-          <p class="g-body mb-10">
-            De strijd zelf vraagt gebed, gemeenschap en de genade van God.
-            Gebruik dit als middel op weg — niet als doel.
-          </p>
+            <p class="g-body mb-10">
+              De strijd zelf vraagt gebed, gemeenschap en de genade van God.
+              Gebruik dit als middel op weg — niet als doel.
+            </p>
 
-          <div class="flex items-center justify-between">
-            <button @click="stap = 2" class="g-btn-solid">verder</button>
-            <p class="g-meta">1 / 2</p>
-          </div>
-        </template>
-
-        <!-- Stap 2: hoe werkt sync -->
-        <template v-else>
-          <h1 class="g-title">jouw data</h1>
-
-          <p class="g-body mb-4">
-            Alles wat je invoert staat op dit toestel — geen server, geen account.
-            Niemand kan jouw data zien, ook wij niet.
-          </p>
-
-          <p class="g-body mb-4">
-            Wil je de app op meerdere toestellen gebruiken, of een backup?
-            Sla je databestand op in een cloudmap zoals iCloud Drive, Google Drive
-            of Dropbox. De app schrijft er automatisch naartoe bij elke wijziging.
-          </p>
-
-          <p class="g-meta mb-10">
-            Je kan dit ook later instellen via profiel → data &amp; sync.
-          </p>
-
-          <div class="flex items-center justify-between">
-            <div class="flex gap-3">
-              <button @click="stelIn" class="g-btn-solid">stel nu in</button>
-              <button @click="sluit" class="g-btn">sla over</button>
+            <div class="flex items-center justify-between">
+              <button @click="stap = 2" class="g-btn-solid">verder</button>
+              <p class="g-meta">1 / 2</p>
             </div>
-            <p class="g-meta">2 / 2</p>
-          </div>
-        </template>
+          </template>
 
+          <!-- Stap 2 -->
+          <template v-else>
+            <h1 class="g-title">jouw data</h1>
+
+            <p class="g-body mb-4">{{ TEKSTEN.privacy }}</p>
+
+            <p class="g-body mb-4">{{ TEKSTEN.syncUitleg }}</p>
+
+            <p class="g-meta mb-10">
+              {{ TEKSTEN.cloudVoorbeelden }}<br />
+              Je kan dit ook later instellen via profiel → instellingen.
+            </p>
+
+            <div class="flex items-center justify-between">
+              <div class="flex gap-3">
+                <button @click="stelIn" class="g-btn-solid">stel nu in</button>
+                <button @click="sluit" class="g-btn">sla over</button>
+              </div>
+              <p class="g-meta">2 / 2</p>
+            </div>
+          </template>
+
+        </div>
       </div>
     </div>
   </Teleport>
