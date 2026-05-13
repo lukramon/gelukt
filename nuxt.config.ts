@@ -1,9 +1,15 @@
 import { readFileSync } from 'fs'
-const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string }
+import { resolve } from 'path'
+
+let versie = '1.0.0'
+try {
+  const pkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf-8')) as { version: string }
+  versie = pkg.version
+} catch {}
 
 export default defineNuxtConfig({
   runtimeConfig: {
-    public: { versie: pkg.version },
+    public: { versie },
   },
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss'],
@@ -20,6 +26,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'canonical', href: 'https://gelukt.be' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Lusitana:wght@400;700&display=swap' },
