@@ -24,6 +24,12 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#F8F6F2' },
         { name: 'robots', content: 'index, follow' },
       ],
+      // Thema direct instellen vóór rendering — voorkomt flash + zorgt dat
+      // het intro-scherm meteen de juiste achtergrond/tekst heeft
+      script: [{
+        innerHTML: `try{const s=localStorage.getItem('gelukt-donker');const d=s!==null?s==='true':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark')}catch(e){}`,
+        type: 'text/javascript',
+      }],
       link: [
         { rel: 'canonical', href: 'https://gelukt.be' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
