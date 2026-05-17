@@ -1,10 +1,10 @@
 export function useUrges() {
   const { appData, slaAllesOp } = useStorage()
 
-  async function logDrang(intensiteit: number, triggerId?: string, triggerNaam?: string) {
+  async function logDrang(intensiteit: number, triggerId?: string, triggerNaam?: string, datumTijd?: string) {
     appData.value.drang.push({
       id: Date.now().toString(),
-      datumTijd: new Date().toISOString(),
+      datumTijd: datumTijd ?? new Date().toISOString(),
       intensiteit,
       triggerId,
       triggerNaam,

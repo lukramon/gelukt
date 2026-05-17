@@ -33,6 +33,12 @@ export interface Plan {
   redenen: string[]
 }
 
+export interface SuccesvolDag {
+  id: string
+  datumTijd: string
+  notitie?: string
+}
+
 export interface AppData {
   versie: string
   streak: StreakData
@@ -40,4 +46,5 @@ export interface AppData {
   drang: Drang[]
   plan: Plan
   opgeslagenBronnen: string[]
+  succesvolleDagen: SuccesvolDag[]
 }

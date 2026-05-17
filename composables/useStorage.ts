@@ -13,6 +13,7 @@ function standaardData(): AppData {
     drang: [],
     plan: { redenen: [] },
     opgeslagenBronnen: [],
+    succesvolleDagen: [],
   }
 }
 
@@ -28,6 +29,7 @@ function migreer(raw: Record<string, unknown>): AppData {
     triggers:        Array.isArray(raw.triggers)        ? raw.triggers        : basis.triggers,
     drang:           Array.isArray(raw.drang)           ? raw.drang           : basis.drang,
     opgeslagenBronnen: Array.isArray(raw.opgeslagenBronnen) ? raw.opgeslagenBronnen : basis.opgeslagenBronnen,
+    succesvolleDagen:  Array.isArray(raw.succesvolleDagen)  ? raw.succesvolleDagen  : basis.succesvolleDagen,
   }
 }
 
