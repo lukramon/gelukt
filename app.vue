@@ -21,18 +21,18 @@
       </main>
 
       <nav class="fixed bottom-0 left-0 right-0 bg-paper dark:bg-black border-t border-black dark:border-stone-700">
-        <div class="max-w-sm mx-auto px-6 py-2 flex justify-between">
-          <NuxtLink to="/" class="flex flex-col items-center gap-0.5 text-xs font-bold"
+        <div class="max-w-sm mx-auto py-2 flex">
+          <NuxtLink to="/" class="flex flex-col items-center gap-0.5 text-xs font-bold w-1/3"
             :class="route.path === '/' ? '' : 'opacity-40 hover:opacity-70'">
             <Sun :size="18" :stroke-width="1.5" />
             <span>vandaag</span>
           </NuxtLink>
-          <NuxtLink to="/inspiratie" class="flex flex-col items-center gap-0.5 text-xs font-bold"
+          <NuxtLink to="/inspiratie" class="flex flex-col items-center gap-0.5 text-xs font-bold w-1/3"
             :class="route.path === '/inspiratie' ? '' : 'opacity-40 hover:opacity-70'">
             <BookOpen :size="18" :stroke-width="1.5" />
             <span>inspiratie</span>
           </NuxtLink>
-          <NuxtLink to="/profiel" class="flex flex-col items-center gap-0.5 text-xs font-bold"
+          <NuxtLink to="/profiel" class="flex flex-col items-center gap-0.5 text-xs font-bold w-1/3"
             :class="route.path === '/profiel' ? '' : 'opacity-40 hover:opacity-70'">
             <User :size="18" :stroke-width="1.5" />
             <span>profiel</span>
