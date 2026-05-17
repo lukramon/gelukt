@@ -15,6 +15,7 @@ const { gesorteerd, voegToe, verwijder } = useTriggers()
 const { data: streakData, aantalDagen, langsteStreak, totaalDagen } = useStreak()
 const { perWeekdag } = useUrges()
 const {
+  appData, slaAllesOp,
   exporteerData, importeerData, verwijderAlles, verversVanBestand,
   bestandGekoppeld, bestandNaam, kiesBestaandBestand, maakNieuwBestand, ondersteund,
 } = useStorage()
@@ -82,6 +83,24 @@ function voegTriggerToe() {
 const weekdagen = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za']
 const maxDrang = computed(() => Math.max(...perWeekdag.value, 1))
 const meestVoorkomendeTrigger = computed(() => gesorteerd.value[0])
+
+// Startdatum bewerken
+const bewerkStartdatum = ref(false)
+const nieuweStartdatum = ref('')
+
+function startBewerkStartdatum() {
+  const d = new Date(appData.value.streak.beginDatum)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  nieuweStartdatum.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  bewerkStartdatum.value = true
+}
+
+async function slaStartdatumOp() {
+  if (!nieuweStartdatum.value) return
+  appData.value.streak.beginDatum = new Date(nieuweStartdatum.value).toISOString()
+  await slaAllesOp()
+  bewerkStartdatum.value = false
+}
 
 // Data & sync
 const bestandBezig = ref(false)
@@ -168,6 +187,21 @@ async function slaaMeldingenOpEnToets() {
           <div class="flex justify-between g-body mb-2">
             <span class="text-stone-500">huidige streak</span>
             <span class="g-kleur-streak">{{ aantalDagen }} {{ aantalDagen === 1 ? 'dag' : 'dagen' }}</span>
+          </div>
+          <div class="mb-3">
+            <template v-if="!bewerkStartdatum">
+              <button @click="startBewerkStartdatum" class="g-link flex items-center gap-1">
+                <Pencil :size="11" /> startdatum aanpassen
+              </button>
+            </template>
+            <template v-else>
+              <label class="g-label">startdatum huidige streak</label>
+              <div class="flex gap-2 mt-1">
+                <input v-model="nieuweStartdatum" type="datetime-local" class="g-input flex-1" />
+                <button @click="slaStartdatumOp" class="g-btn px-3">ok</button>
+                <button @click="bewerkStartdatum = false" class="g-link">annuleer</button>
+              </div>
+            </template>
           </div>
           <div class="flex justify-between g-body mb-2">
             <span class="text-stone-500">langste streak</span>
