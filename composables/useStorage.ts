@@ -2,7 +2,7 @@ import type { AppData } from '~/types/recovery'
 
 const LS_SLEUTEL = 'gelukt-appdata'
 
-const HUIDIGE_VERSIE = '1.2'
+const HUIDIGE_VERSIE = '1.3'
 
 function standaardData(): AppData {
   const nu = new Date().toISOString()
@@ -22,14 +22,32 @@ function standaardData(): AppData {
 function migreer(raw: Record<string, unknown>): { data: AppData; gemigreerd: boolean } {
   const basis = standaardData()
   const gemigreerd = raw.versie !== HUIDIGE_VERSIE
+
+  // Bereken de correcte beginDatum: altijd de datum van de meest recente terugval.
+  // Dit repareert ook de bug waarbij beginDatum op 'nu' werd gezet i.p.v. de terugvaldatum.
+  const streakRaw = (raw.streak ?? {}) as Record<string, unknown>
+  const terugvallenRaw = Array.isArray(streakRaw.terugvallen)
+    ? (streakRaw.terugvallen as Array<{ datumTijd: string }>)
+    : []
+  const meesteRecente = [...terugvallenRaw].sort(
+    (a, b) => new Date(b.datumTijd).getTime() - new Date(a.datumTijd).getTime()
+  )[0]
+  const correcteBeginDatum = meesteRecente?.datumTijd
+    ?? (streakRaw.eersteBeginDatum as string | undefined)
+    ?? basis.streak.beginDatum
+
   return {
     gemigreerd,
     data: {
       ...basis,
       ...(raw as Partial<AppData>),
       versie: HUIDIGE_VERSIE,
-      streak: { ...basis.streak, ...((raw.streak ?? {}) as object) },
-      plan:   { ...basis.plan,   ...((raw.plan   ?? {}) as object) },
+      streak: {
+        ...basis.streak,
+        ...((raw.streak ?? {}) as object),
+        beginDatum: correcteBeginDatum,
+      },
+      plan:   { ...basis.plan, ...((raw.plan ?? {}) as object) },
       triggers:          Array.isArray(raw.triggers)          ? raw.triggers          : basis.triggers,
       drang:             Array.isArray(raw.drang)             ? raw.drang             : basis.drang,
       opgeslagenBronnen: Array.isArray(raw.opgeslagenBronnen) ? raw.opgeslagenBronnen : basis.opgeslagenBronnen,
