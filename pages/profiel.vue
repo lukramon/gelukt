@@ -17,7 +17,8 @@ const { perWeekdag } = useUrges()
 const {
   appData, slaAllesOp,
   exporteerData, importeerData, verwijderAlles, verversVanBestand,
-  bestandGekoppeld, bestandNaam, kiesBestaandBestand, maakNieuwBestand, ondersteund,
+  bestandGekoppeld, bestandNaam, toestemmingNodig, vraagToestemming,
+  kiesBestaandBestand, maakNieuwBestand, ondersteund,
 } = useStorage()
 const {
   ondersteund: meldingOndersteund, instellingen, toestemming,

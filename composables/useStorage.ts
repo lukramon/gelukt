@@ -252,6 +252,12 @@ export function useStorage() {
   }
 
   async function slaAllesOp(): Promise<void> {
+    // Als toestemming nodig is, vraag die nu — de gebruiker heeft net een actie gedaan
+    // (user gesture), dus de browser staat het toe.
+    if (toestemmingNodig.value) {
+      await vraagToestemming()
+    }
+
     if (bestandGekoppeld.value) {
       await schrijfNaarBestand()
     } else {

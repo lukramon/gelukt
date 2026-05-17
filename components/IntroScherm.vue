@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TEKSTEN } from "~/data/teksten";
 const router = useRouter();
+const { ondersteund } = useStorage();
 
 // useState zodat profiel.vue het ook kan aansturen zonder page reload
 const tonen = useState("introTonen", () => false);
@@ -75,11 +76,16 @@ function stelIn() {
 
                         <p class="g-body mb-4">{{ TEKSTEN.syncUitleg }}</p>
 
-                        <p class="g-meta mb-10">
+                        <p class="g-meta mb-4">
                             {{ TEKSTEN.cloudVoorbeelden }}<br />
                             Je kan dit ook later instellen via profiel →
                             instellingen.
                         </p>
+
+                        <p v-if="ondersteund" class="g-meta mb-10">
+                            {{ TEKSTEN.bestandsToestemming }}
+                        </p>
+                        <div v-else class="mb-10" />
 
                         <div class="flex items-center justify-between">
                             <div class="flex gap-3">

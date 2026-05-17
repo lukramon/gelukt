@@ -2,14 +2,15 @@
 import { Plus, TrendingUp, X, CheckCircle } from "lucide-vue-next";
 
 useSeoMeta({
-  title: "Gelukt — PMO Recovery Tracker",
-  description: "Volg je PMO-vrije streak dag voor dag. Volledig privé, geen account, geen server.",
-  ogTitle: "Gelukt — PMO Recovery Tracker",
-  ogDescription: "Persoonlijke recovery tracker. Privé, geen account, geen server.",
+  title: "Gelukt — Streakteller voor pornoherstel",
+  description: "Houd je herstelstreak bij, dag na dag. Registreer drang, triggers en terugvallen. Volledig privé — alles blijft op jouw toestel.",
+  ogTitle: "Gelukt — Streakteller voor pornoherstel",
+  ogDescription: "Persoonlijke hersteltracker voor pornoverslaving. Volledig privé, geen account, geen server.",
   ogType: "website",
   ogUrl: "https://gelukt.be",
 });
 
+const { toestemmingNodig, vraagToestemming } = useStorage();
 const { data: streakData, aantalDagen, registreerTerugval } = useStreak();
 const { gesorteerd: triggerLijst, verhoogTeller } = useTriggers();
 const { drangmomenten, logDrang } = useUrges();

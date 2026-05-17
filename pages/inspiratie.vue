@@ -4,7 +4,7 @@ import { BRONNEN, type BronType } from '~/data/bronnen'
 
 useSeoMeta({
   title: 'Gelukt — Inspiratie',
-  description: 'Aanbevolen boeken, video\'s en artikelen over PMO-herstel.',
+  description: 'Aanbevolen boeken, video\'s en artikelen over herstel van pornoverslaving.',
 })
 
 const LABELS: Record<BronType, string> = {

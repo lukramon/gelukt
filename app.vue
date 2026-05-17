@@ -7,17 +7,6 @@
     </template>
 
     <template v-else>
-      <!-- Kleine niet-blokkerende banner als toestemming opnieuw nodig is -->
-      <div v-if="toestemmingNodig" class="max-w-sm mx-auto px-4 pt-4">
-        <button
-          @click="vraagToestemming"
-          class="w-full flex items-center justify-between g-infobox cursor-pointer hover:opacity-70"
-        >
-          <span class="g-meta">{{ bestandNaam }} — klik om te verbinden</span>
-          <span class="g-meta underline">verbind</span>
-        </button>
-      </div>
-
       <main class="max-w-sm mx-auto px-4 py-6 pb-20">
         <NuxtPage />
       </main>

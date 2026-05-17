@@ -13,4 +13,7 @@ export const TEKSTEN = {
 
   browserGeenSupport:
     'Jouw browser ondersteunt direct bestandsbeheer niet (Chrome/Edge wel). Gebruik export en import als alternatief.',
+
+  bestandsToestemming:
+    'Elke keer dat je de app opent, vraagt de browser toestemming om je databestand te lezen. Dit is een beveiligingsmaatregel van de browser — de app kan dit niet omzeilen. De vraag verschijnt automatisch zodra je iets logt.',
 }
