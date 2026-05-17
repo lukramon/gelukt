@@ -6,16 +6,18 @@
       <BestandSetup />
     </template>
 
-    <template v-else-if="toestemmingNodig">
-      <div class="max-w-sm mx-auto px-4 py-10">
-        <div class="g-title">gelukt</div>
-        <p class="g-body mb-2">Gelukt heeft toegang nodig tot jouw databestand.</p>
-        <p class="g-meta mb-6">{{ bestandNaam }}</p>
-        <button @click="vraagToestemming" class="g-btn">toegang verlenen</button>
-      </div>
-    </template>
-
     <template v-else>
+      <!-- Kleine niet-blokkerende banner als toestemming opnieuw nodig is -->
+      <div v-if="toestemmingNodig" class="max-w-sm mx-auto px-4 pt-4">
+        <button
+          @click="vraagToestemming"
+          class="w-full flex items-center justify-between g-infobox cursor-pointer hover:opacity-70"
+        >
+          <span class="g-meta">{{ bestandNaam }} — klik om te verbinden</span>
+          <span class="g-meta underline">verbind</span>
+        </button>
+      </div>
+
       <main class="max-w-sm mx-auto px-4 py-6 pb-20">
         <NuxtPage />
       </main>
