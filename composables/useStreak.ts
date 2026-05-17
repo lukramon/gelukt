@@ -31,7 +31,7 @@ export function useStreak() {
 
   async function registreerTerugval(terugval: Omit<Terugval, 'id'>) {
     appData.value.streak.terugvallen.push({ id: Date.now().toString(), ...terugval })
-    appData.value.streak.beginDatum = new Date().toISOString()
+    appData.value.streak.beginDatum = terugval.datumTijd
     await slaAllesOp()
   }
 
