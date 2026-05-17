@@ -2,7 +2,7 @@ import type { AppData } from '~/types/recovery'
 
 const LS_SLEUTEL = 'gelukt-appdata'
 
-const HUIDIGE_VERSIE = '1.1'
+const HUIDIGE_VERSIE = '1.2'
 
 function standaardData(): AppData {
   const nu = new Date().toISOString()
@@ -18,18 +18,23 @@ function standaardData(): AppData {
 }
 
 // Zorgt dat opgeslagen data altijd alle velden heeft, ook na app-updates.
-function migreer(raw: Record<string, unknown>): AppData {
+// Geeft ook terug of er een migratie nodig was, zodat we het bestand kunnen herschrijven.
+function migreer(raw: Record<string, unknown>): { data: AppData; gemigreerd: boolean } {
   const basis = standaardData()
+  const gemigreerd = raw.versie !== HUIDIGE_VERSIE
   return {
-    ...basis,
-    ...(raw as Partial<AppData>),
-    versie: HUIDIGE_VERSIE,
-    streak: { ...basis.streak, ...((raw.streak ?? {}) as object) },
-    plan:   { ...basis.plan,   ...((raw.plan   ?? {}) as object) },
-    triggers:        Array.isArray(raw.triggers)        ? raw.triggers        : basis.triggers,
-    drang:           Array.isArray(raw.drang)           ? raw.drang           : basis.drang,
-    opgeslagenBronnen: Array.isArray(raw.opgeslagenBronnen) ? raw.opgeslagenBronnen : basis.opgeslagenBronnen,
-    succesvolleDagen:  Array.isArray(raw.succesvolleDagen)  ? raw.succesvolleDagen  : basis.succesvolleDagen,
+    gemigreerd,
+    data: {
+      ...basis,
+      ...(raw as Partial<AppData>),
+      versie: HUIDIGE_VERSIE,
+      streak: { ...basis.streak, ...((raw.streak ?? {}) as object) },
+      plan:   { ...basis.plan,   ...((raw.plan   ?? {}) as object) },
+      triggers:          Array.isArray(raw.triggers)          ? raw.triggers          : basis.triggers,
+      drang:             Array.isArray(raw.drang)             ? raw.drang             : basis.drang,
+      opgeslagenBronnen: Array.isArray(raw.opgeslagenBronnen) ? raw.opgeslagenBronnen : basis.opgeslagenBronnen,
+      succesvolleDagen:  Array.isArray(raw.succesvolleDagen)  ? raw.succesvolleDagen  : basis.succesvolleDagen,
+    },
   }
 }
 
@@ -81,7 +86,7 @@ export function useStorage() {
     if (!process.client) return
     try {
       const raw = localStorage.getItem(LS_SLEUTEL)
-      if (raw) appData.value = migreer(JSON.parse(raw))
+      if (raw) appData.value = migreer(JSON.parse(raw)).data
     } catch {}
   }
 
@@ -116,7 +121,16 @@ export function useStorage() {
     try {
       const bestand = await handle.getFile()
       const tekst = await bestand.text()
-      if (tekst.trim()) appData.value = migreer(JSON.parse(tekst))
+      if (tekst.trim()) {
+        const { data, gemigreerd } = migreer(JSON.parse(tekst))
+        appData.value = data
+        if (gemigreerd) {
+          // Nieuwe velden schrijven we meteen terug naar het bestand
+          const w = await handle.createWritable()
+          await w.write(JSON.stringify(data, null, 2))
+          await w.close()
+        }
+      }
       bestandGekoppeld.value = true
       bestandNaam.value = handle.name
       toestemmingNodig.value = false
@@ -134,7 +148,16 @@ export function useStorage() {
       if (status !== 'granted') return false
       const bestand = await handle.getFile()
       const tekst = await bestand.text()
-      if (tekst.trim()) appData.value = migreer(JSON.parse(tekst))
+      if (tekst.trim()) {
+        const { data, gemigreerd } = migreer(JSON.parse(tekst))
+        appData.value = data
+        if (gemigreerd) {
+          // Nieuwe velden schrijven we meteen terug naar het bestand
+          const w = await handle.createWritable()
+          await w.write(JSON.stringify(data, null, 2))
+          await w.close()
+        }
+      }
       bestandGekoppeld.value = true
       bestandNaam.value = handle.name
       toestemmingNodig.value = false
@@ -238,8 +261,8 @@ export function useStorage() {
       const lezer = new FileReader()
       lezer.onload = async (e) => {
         try {
-          const data = JSON.parse(e.target?.result as string)
-          appData.value = migreer(data)
+          const raw = JSON.parse(e.target?.result as string)
+          appData.value = migreer(raw).data
           if (bestandGekoppeld.value) {
             await schrijfNaarBestand()
           } else {
