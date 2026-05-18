@@ -43,7 +43,7 @@ const { laden: laadMeldingen, stuurNaarSW } = useMeldingen()
 const { initialiseer: initThema } = useThema()
 
 const geladen = ref(false)
-const toonSetup = computed(() => geladen.value && ondersteund && !bestandGekoppeld.value && !toestemmingNodig.value)
+const toonSetup = computed(() => geladen.value && ondersteund && !bestandGekoppeld.value)
 
 onMounted(async () => {
   initThema()

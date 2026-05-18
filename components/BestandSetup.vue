@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TEKSTEN } from '~/data/teksten'
-const { maakNieuwBestand, kiesBestaandBestand, ondersteund } = useStorage()
+const { maakNieuwBestand, kiesBestaandBestand, ondersteund, toestemmingNodig, vraagToestemming } = useStorage()
 
 const bezig = ref(false)
 const fout = ref('')
@@ -20,6 +20,14 @@ async function bestaand() {
   catch (e: unknown) { fout.value = (e as Error).message }
   finally { bezig.value = false }
 }
+
+async function herverbind() {
+  bezig.value = true
+  fout.value = ''
+  const ok = await vraagToestemming()
+  if (!ok) fout.value = 'Toestemming geweigerd. Probeer opnieuw.'
+  bezig.value = false
+}
 </script>
 
 <template>
@@ -27,7 +35,23 @@ async function bestaand() {
     <div class="w-full max-w-sm">
       <h1 class="g-title">gelukt</h1>
 
-      <template v-if="ondersteund">
+      <!-- Herverbinden na sessieherstart -->
+      <template v-if="toestemmingNodig">
+        <p class="g-body mb-4">
+          De browser heeft toestemming nodig om je databestand te lezen.
+          Dit is een beveiligingsmaatregel van de browser — de app kan dit niet omzeilen.
+        </p>
+        <p class="g-meta mb-6">
+          Klik hieronder om de verbinding te herstellen. De browser zal vragen
+          om toegang tot het bestand dat je eerder hebt gekoppeld.
+        </p>
+        <button @click="herverbind" :disabled="bezig" class="g-btn-solid">
+          verbind opnieuw
+        </button>
+      </template>
+
+      <!-- Eerste keer instellen -->
+      <template v-else-if="ondersteund">
         <p class="g-body mb-4">{{ TEKSTEN.syncUitleg }}</p>
 
         <p class="g-meta mb-6">{{ TEKSTEN.cloudVoorbeelden }}</p>
@@ -46,13 +70,14 @@ async function bestaand() {
         <p class="g-meta">{{ TEKSTEN.bestandsToestemming }}</p>
       </template>
 
+      <!-- Browser zonder ondersteuning -->
       <template v-else>
         <p class="g-body mb-3">Jouw browser slaat data op in de browseropslag van dit toestel.</p>
         <p class="g-meta mb-6">{{ TEKSTEN.browserGeenSupport }}</p>
         <NuxtLink to="/" class="g-btn inline-block">verder</NuxtLink>
       </template>
 
-      <p v-if="fout" class="g-meta mt-3">fout: {{ fout }}</p>
+      <p v-if="fout" class="g-meta mt-3">{{ fout }}</p>
     </div>
   </div>
 </template>
